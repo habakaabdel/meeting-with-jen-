@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KCA — PM Compensation Restructuring</title>
+<style>
+  :root {
+    --red: #D22630;
+    --red-ink: #A81D25;
+    --dark: #2D2926;
+    --gold: #FFC72C;
+    --gold-soft: #FFF3CC;
+    --paper: #FAF7F2;
+    --paper-2: #F2ECE0;
+    --rule: #E4DED2;
+    --muted: #6B645B;
+    --ink: #1C1A18;
+    --green: #2F7D55;
+    --green-soft: #E3F1E8;
+    --blue: #1E4E8C;
+    --blue-soft: #E2ECF7;
+    --neutral-soft: #EFEAE0;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: "DejaVu Sans", Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--dark);
+  }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 36px; }
+
+  /* Header */
+  header {
+    background: var(--dark);
+    color: var(--paper);
+    border-bottom: 4px solid var(--red);
+  }
+  .masthead {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 22px 0;
+  }
+  .seal {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--paper);
+    border: 3px solid var(--gold);
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .seal::after {
+    content: "";
+    position: absolute; inset: 4px;
+    border: 1.5px dashed var(--red);
+    border-radius: 50%;
+  }
+  .seal span {
+    font-family: "DejaVu Sans", sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--red);
+    letter-spacing: 0.02em;
+  }
+  .masthead-text { flex: 1; }
+  .masthead h1 {
+    color: var(--paper);
+    font-size: 22px;
+    letter-spacing: 0.02em;
+  }
+  .masthead .sub {
+    font-size: 12.5px;
+    color: #C8BFB2;
+    margin-top: 3px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .meeting-tag {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dark);
+    background: var(--gold);
+    padding: 7px 12px;
+    font-weight: 700;
+    border-radius: 2px;
+  }
+
+  /* Section intro */
+  .intro {
+    padding: 40px 0 24px;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 40px;
+    align-items: end;
+  }
+  .intro h2 {
+    font-size: 36px;
+    line-height: 1.08;
+    max-width: 640px;
+    text-wrap: pretty;
+  }
+  .intro h2 em {
+    font-style: normal;
+    color: var(--red);
+  }
+  .intro p {
+    color: var(--muted);
+    font-size: 14.5px;
+    max-width: 480px;
+    margin: 0;
+  }
+
+  /* Global controls */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 28px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: center;
+  }
+  .control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .control label {
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .control input[type="number"] {
+    font-family: "DejaVu Sans", monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-bottom: 2px solid var(--dark);
+    padding: 8px 10px;
+    width: 120px;
+    border-radius: 2px;
+  }
+  .control input[type="number"]:focus {
+    outline: none;
+    border-bottom-color: var(--red);
+  }
+  .toggle-group {
+    display: inline-flex;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 3px;
+  }
+  .toggle-group button {
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    padding: 7px 14px;
+    cursor: pointer;
+    border-radius: 2px;
+    letter-spacing: 0.02em;
+  }
+  .toggle-group button.active {
+    background: var(--dark);
+    color: var(--paper);
+  }
+  .control-note {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-left: auto;
+    font-style: italic;
+  }
+
+  /* KPI row */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    padding: 28px 0 12px;
+  }
+  .kpi-card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--dark);
+    padding: 20px 22px 22px;
+    position: relative;
+  }
+  .kpi-card.m1 { border-top-color: var(--red); }
+  .kpi-card.m2 { border-top-color: var(--dark); }
+  .kpi-card.m3 { border-top-color: var(--gold); }
+
+  .kpi-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 18px;
+  }
+  .kpi-head .model-num {
+    font-family: "DejaVu Sans", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .kpi-card h3 {
+    font-size: 17px;
+    margin-bottom: 4px;
+  }
+  .kpi-card .tagline {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 18px;
+    min-height: 34px;
+  }
+  .kpi-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .kpi-stat:last-child { border-bottom: none; }
+  .kpi-stat .label {
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .kpi-stat .value {
+    font-family: "DejaVu Sans", monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .kpi-stat .value.big {
+    font-size: 32px;
+  }
+  .kpi-stat .delta {
+    display: block;
+    font-family: "DejaVu Sans", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 3px;
+  }
+  .delta.up { color: var(--red); }
+  .delta.down { color: var(--green); }
+  .delta.flat { color: var(--muted); }
+
+  /* Chart block */
+  .chart-block {
+    padding: 36px 0;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .chart-block h3 {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .chart-block .caption {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .bar-chart { display: flex; flex-direction: column; gap: 12px; }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 110px;
+    align-items: center;
+    gap: 14px;
+    font-size: 13px;
+  }
+  .bar-row .name {
+    font-weight: 600;
+    color: var(--dark);
+  }
+  .bar-track {
+    height: 28px;
+    background: var(--paper-2);
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    transition: width 0.4s cubic-bezier(.2,.7,.2,1);
+  }
+  .bar-fill.m1 { background: var(--red); }
+  .bar-fill.m2 { background: var(--dark); }
+  .bar-fill.m3 { background: var(--gold); }
+  .bar-fill.current { background: repeating-linear-gradient(45deg, #B8AE9D, #B8AE9D 6px, #A89D8B 6px, #A89D8B 12px); }
+  .bar-val {
+    font-family: "DejaVu Sans", monospace;
+    font-weight: 700;
+    font-size: 14px;
+    text-align: right;
+  }
+
+  /* Stacked composition */
+  .stack-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .stack-row .stack-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    margin-bottom: 5px;
+    color: var(--dark);
+  }
+  .stack-row .stack-label strong { font-family: "DejaVu Sans", monospace; }
+  .stack-bar {
+    display: flex;
+    height: 24px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .stack-seg {
+    height: 100%;
+    position: relative;
+  }
+  .seg-salary { background: var(--dark); }
+  .seg-benefits { background: #7D756B; }
+  .seg-travel { background: var(--red); }
+  .seg-tools { background: var(--gold); }
+
+  .legend {
+    display: flex;
+    gap: 18px;
+    margin-top: 10px;
+    font-size: 11.5px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .legend .sw {
+    display: inline-block;
+    width: 10px; height: 10px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .sw.sal { background: var(--dark); }
+  .sw.ben { background: #7D756B; }
+  .sw.tra { background: var(--red); }
+  .sw.too { background: var(--gold); }
+
+  /* Comparison table */
+  .table-block {
+    padding: 36px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .table-block h3 {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid var(--rule);
+  }
+  .comp-table th, .comp-table td {
+    padding: 14px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    font-size: 13.5px;
+  }
+  .comp-table thead th {
+    background: var(--paper-2);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    border-bottom: 2px solid var(--dark);
+  }
+  .comp-table thead th.model-head {
+    color: var(--dark);
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .comp-table thead th.model-head.m1 { border-top: 4px solid var(--red); }
+  .comp-table thead th.model-head.m2 { border-top: 4px solid var(--dark); }
+  .comp-table thead th.model-head.m3 { border-top: 4px solid var(--gold); }
+  .comp-table tbody th {
+    font-weight: 600;
+    color: var(--dark);
+    background: #FBF8F2;
+    width: 220px;
+  }
+  .comp-table td .cell-val {
+    font-family: "DejaVu Sans", monospace;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .comp-table td .cell-note {
+    display: block;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 3px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 400;
+  }
+  .pill {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 2px;
+    margin-right: 6px;
+  }
+  .pill.win { background: var(--green-soft); color: var(--green); }
+  .pill.save { background: var(--blue-soft); color: var(--blue); }
+  .pill.tradeoff { background: var(--neutral-soft); color: var(--muted); }
+
+  /* Scenarios + notes */
+  .notes-block {
+    padding: 36px 0 60px;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .notes-block h3 {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .notes-block ul {
+    padding-left: 16px;
+    margin: 0;
+    color: var(--dark);
+    font-size: 13px;
+  }
+  .notes-block ul li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .notes-block ul li strong { color: var(--red); font-family: "DejaVu Sans"; }
+  .callout {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--gold);
+    padding: 18px 20px;
+    font-size: 13px;
+    color: var(--dark);
+    margin-bottom: 14px;
+  }
+  .callout strong {
+    display: block;
+    font-family: "DejaVu Sans", sans-serif;
+    margin-bottom: 6px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+
+  /* Footer */
+  footer {
+    background: var(--dark);
+    color: #C8BFB2;
+    padding: 28px 0;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; }
+  footer .org {
+    font-family: "DejaVu Sans", sans-serif;
+    font-weight: 700;
+    color: var(--paper);
+    letter-spacing: 0.12em;
+  }
+  footer .org span { color: var(--gold); }
+  footer a { color: var(--gold); text-decoration: none; }
+
+  /* What-if quick-presets */
+  .whatif-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .chip {
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--dark);
+    background: #fff;
+    border: 1px solid var(--rule);
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .chip:hover { border-color: var(--red); color: var(--red); }
+  .chip.active { background: var(--dark); color: var(--paper); border-color: var(--dark); }
+
+  @media (max-width: 1080px) {
+    .kpi-row { grid-template-columns: 1fr; }
+    .chart-block, .notes-block, .intro { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap masthead">
+    <div class="seal"><span>KCA</span></div>
+    <div class="masthead-text">
+      <h1>Project Manager · Compensation Restructuring</h1>
+      <div class="sub">Decision Brief — Prepared for CEO review · April 2026</div>
+    </div>
+    <div class="meeting-tag">Working Document</div>
+  </div>
+</header>
+
+<main>
+  <section class="wrap intro">
+    <h2>Three models for what KCA pays, what the role earns, and <em>where the trade-offs land</em>.</h2>
+    <p>This is a live dashboard for the meeting. Adjust the assumptions at the bottom of the page and every model, chart, and table recalculates.</p>
+  </section>
+
+  <!-- Hidden cost banner -->
+  <section class="wrap" style="padding: 24px 0 4px;">
+    <div style="background: #fff; border: 1px solid var(--rule); border-left: 6px solid var(--red); padding: 20px 24px;">
+      <div style="font-family: 'DejaVu Sans', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 8px;">Hidden cost in the status quo — please read</div>
+      <div style="font-size: 14px; color: var(--dark); line-height: 1.5;">
+        The <strong>$22.9k "travel covered"</strong> figure is misleading. In practice, per-trip reimbursement only covers <strong>two days of food and two round trips</strong>. Anything beyond that — extra meals on longer trips, additional round trips, food bought when there's no kitchen access — comes <strong>out of my pocket</strong>.
+        <div style="margin-top: 8px; color: var(--muted); font-size: 13px; font-style: italic;">This isn't captured anywhere in the current comp package. The real gap between what KCA reimburses and what the role actually costs me is larger than the numbers below suggest.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPI cards -->
+  <section class="wrap kpi-row">
+    <div class="kpi-card m1">
+      <div class="kpi-head">
+        <h3>Contract Structure</h3>
+        <span class="model-num">MODEL 01</span>
+      </div>
+      <div class="tagline">Employee becomes contractor. Comms, strategy &amp; web billed hourly; benefits self-managed.</div>
+      <div class="kpi-stat">
+        <span class="label">KCA pays annually</span>
+        <span><span class="value big" id="m1KcaCost">$211k</span><span class="delta up" id="m1KcaDelta">+$52k vs current</span></span>
+      </div>
+      <div class="kpi-stat">
+        <span class="label">Abdel Takes Home</span>
+        <span class="value" id="m1Net">$172k</span>
+      </div>
+      <div class="kpi-stat">
+        <span class="label">Effective $/hr</span>
+        <span class="value" id="m1Hourly">$70</span>
+      </div>
+    </div>
+
+    <div class="kpi-card m2">
+      <div class="kpi-head">
+        <h3>Expanded Salary + Benefits</h3>
+        <span class="model-num">MODEL 02</span>
+      </div>
+      <div class="tagline">Stay on staff. Add comms scope to portfolio; benefits and travel fully covered by KCA.</div>
+      <div class="kpi-stat">
+        <span class="label">KCA pays annually</span>
+        <span><span class="value big" id="m2KcaCost">$189k</span><span class="delta up" id="m2KcaDelta">+$31k vs current</span></span>
+      </div>
+      <div class="kpi-stat">
+        <span class="label">Abdel Takes Home</span>
+        <span class="value" id="m2Net">$130k</span>
+      </div>
+      <div class="kpi-stat">
+        <span class="label">Effective $/hr</span>
+        <span class="value" id="m2Hourly">$50</span>
+      </div>
+    </div>
+
+    <div class="kpi-card m3">
+      <div class="kpi-head">
+        <h3>Status Quo + Real Travel</h3>
+        <span class="model-num">MODEL 03</span>
+      </div>
+      <div class="tagline">Salary unchanged. KCA reimburses realistic travel &amp; tool costs via custom standard.</div>
+      <div class="kpi-stat">
+        <span class="label">KCA pays annually</span>
+        <span><span class="value big" id="m3KcaCost">$160k</span><span class="delta flat" id="m3KcaDelta">+$1k vs current</span></span>
+      </div>
+      <div class="kpi-stat">
+        <span class="label">Abdel Takes Home</span>
+        <span class="value" id="m3Net">$110k</span>
+      </div>
+      <div class="kpi-stat">
+        <span class="label">Effective $/hr</span>
+        <span class="value" id="m3Hourly">$42</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Charts -->
+  <section class="wrap chart-block">
+    <div>
+      <h3>Total KCA annual cost</h3>
+      <div class="caption">Includes salary or contract, benefits (where applicable), travel, and tool reimbursement.</div>
+      <div class="bar-chart" id="kcaBars"></div>
+    </div>
+    <div>
+      <h3>Abdel Takes Home — annual compensation</h3>
+      <div class="caption">After self-paid benefits for Model 1; excludes KCA-covered travel and tools.</div>
+      <div class="bar-chart" id="netBars"></div>
+    </div>
+  </section>
+
+  <section class="wrap chart-block" style="padding-top: 0;">
+    <div style="grid-column: 1 / -1;">
+      <h3>Where each dollar goes</h3>
+      <div class="caption">Composition of KCA's total spend under each model.</div>
+      <div class="stack-chart" id="stackChart"></div>
+      <div class="legend">
+        <span><i class="sw sal"></i>Salary / contract fees</span>
+        <span><i class="sw ben"></i>Benefits</span>
+        <span><i class="sw tra"></i>Travel</span>
+        <span><i class="sw too"></i>Tools &amp; resources</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison table -->
+  <section class="wrap table-block">
+    <h3>Side-by-side comparison</h3>
+    <table class="comp-table" id="compTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="model-head m1">Model 1 · Contract</th>
+          <th class="model-head m2">Model 2 · Expanded Salary</th>
+          <th class="model-head m3">Model 3 · Status Quo + Travel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>KCA annual cost</th>
+          <td><span class="cell-val" id="tbM1Kca">$211,240</span><span class="cell-note"><span class="pill save">KCA</span>Highest cost, highest flexibility</span></td>
+          <td><span class="cell-val" id="tbM2Kca">$189,650</span><span class="cell-note"><span class="pill tradeoff">TRADE-OFF</span>Mid cost, simplest to administer</span></td>
+          <td><span class="cell-val" id="tbM3Kca">$160,050</span><span class="cell-note"><span class="pill save">KCA</span>Lowest cost, closest to current</span></td>
+        </tr>
+        <tr>
+          <th>Abdel Takes Home</th>
+          <td><span class="cell-val" id="tbM1Net">$172,000</span><span class="cell-note"><span class="pill win">YOU</span>After $10k self-paid benefits</span></td>
+          <td><span class="cell-val" id="tbM2Net">$130,000</span><span class="cell-note"><span class="pill win">YOU</span>Plus fully-covered benefits &amp; travel</span></td>
+          <td><span class="cell-val" id="tbM3Net">$110,000</span><span class="cell-note"><span class="pill tradeoff">TRADE-OFF</span>Salary flat, but no out-of-pocket bleed</span></td>
+        </tr>
+        <tr>
+          <th>Travel coverage</th>
+          <td>Porter &amp; hotels direct · gas &amp; meals invoiced<span class="cell-note">Variable w/ trip count</span></td>
+          <td>Full — same as current<span class="cell-note">$22,900 / year covered — but current reimbursement only pays 2 days of food + 2 round trips per trip; overage absorbed by Abdel</span></td>
+          <td>Custom standard: $40/day meals, $200–250/trip gas<span class="cell-note">~$18,000 / year</span></td>
+        </tr>
+        <tr>
+          <th>Tool &amp; resource coverage</th>
+          <td>Reimbursed or invoiced — $6,240</td>
+          <td>Fully covered by KCA — $6,240</td>
+          <td>Fully covered by KCA — $6,240</td>
+        </tr>
+        <tr>
+          <th>Benefits situation</th>
+          <td>Contractor pays own<span class="cell-note">Est. $8–10k out of pocket</span></td>
+          <td>Employee plan · 23.5% of salary<span class="cell-note">$30,550 value</span></td>
+          <td>Employee plan · 23.5% of salary<span class="cell-note">$25,850 value</span></td>
+        </tr>
+        <tr>
+          <th>Effective hourly rate</th>
+          <td><span class="cell-val" id="tbM1Hr">$70.00</span><span class="cell-note">Contractor billing rate</span></td>
+          <td><span class="cell-val" id="tbM2Hr">$50.00</span><span class="cell-note">Salary ÷ annual hours</span></td>
+          <td><span class="cell-val" id="tbM3Hr">$42.31</span><span class="cell-note">Salary ÷ annual hours</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Notes -->
+  <section class="wrap notes-block">
+    <div>
+      <h3>Assumptions driving the numbers</h3>
+      <ul>
+        <li>Current compensation package is <strong>$158,990</strong> — salary ($110k) + benefits ($25.85k) + travel ($22.9k). Tools ($6.2k) currently out of pocket.</li>
+        <li><strong style="color: var(--red);">Travel reality:</strong> current reimbursement only covers 2 days of food and 2 round trips per trip. Longer trips, extra meals, and food purchased when no kitchen is available are absorbed by Abdel and are not reflected in any figure on this page.</li>
+        <li>Baseline hourly rate of <strong>$57/hr</strong> reflects actual hours worked, not a 40-hour week.</li>
+        <li>Contract rate markup of <strong>30%</strong> covers no benefits, self-employment overhead, and no PTO.</li>
+        <li>Model 1 contractor absorbs <strong>$8–10k/yr</strong> in self-paid benefits; $10k used in the net figure above.</li>
+        <li>Model 2 benefits remain at <strong>23.5%</strong> of salary per current plan.</li>
+        <li>Model 3 travel uses a custom standard rather than full actuals — $40/day meals, $200–250/round trip for gas.</li>
+        <li>Changes in the controls apply to every view instantly.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Read this before deciding</h3>
+      <div class="callout">
+        <strong>Model 1 is a different relationship</strong>
+        Moving to contract means no PTO, no statutory protections, and the employee carries benefits + tax risk. The $70/hr rate is the floor that makes this neutral for the individual.
+      </div>
+      <div class="callout">
+        <strong>Model 2 is the simplest administratively</strong>
+        One employment contract, one benefits plan, KCA owns the travel spend. Highest employee stability; middle KCA cost.
+      </div>
+      <div class="callout">
+        <strong>Model 3 stops the leak, doesn't change the wage</strong>
+        Smallest change for KCA. Stops the employee absorbing $22.9k of operational costs — but doesn't address the hours-vs-salary gap.
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" style="padding-top: 8px;">
+    <h3 style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dark); margin: 24px 0 14px; border-top: 1px solid var(--rule); padding-top: 28px;">Adjust assumptions</h3>
+  </section>
+
+  <section class="wrap controls" id="controls" style="border-top: none;">
+    <div class="control">
+      <label for="hours">Hours / week</label>
+      <input type="number" id="hours" value="50" min="30" max="70" step="1" />
+    </div>
+    <div class="control">
+      <label for="contractRate">Contract rate ($/hr)</label>
+      <input type="number" id="contractRate" value="70" min="40" max="150" step="1" />
+    </div>
+    <div class="control">
+      <label for="m2Salary">Model 2 salary</label>
+      <input type="number" id="m2Salary" value="130000" min="80000" max="200000" step="1000" />
+    </div>
+    <div class="control">
+      <label for="benefitsPct">Benefits %</label>
+      <input type="number" id="benefitsPct" value="23.5" min="0" max="40" step="0.5" />
+    </div>
+    <div class="control">
+      <label>Model 1 travel</label>
+      <div class="toggle-group" id="travelToggle">
+        <button data-travel="full" class="active">Full ($22.9k)</button>
+        <button data-travel="reduced">Reduced ($15k)</button>
+      </div>
+    </div>
+    <div class="control">
+      <label>Tool reimbursement</label>
+      <div class="toggle-group" id="toolsToggle">
+        <button data-tools="on" class="active">On ($6.2k)</button>
+        <button data-tools="off">Off</button>
+      </div>
+    </div>
+    <div class="control-note">Baseline hourly rate at current comp &amp; hours: <strong id="baselineRate">$57</strong>/hr</div>
+  </section>
+
+  <section class="wrap" style="padding-bottom: 40px;">
+    <div class="whatif-row" style="padding: 16px 0 4px;">
+      <span style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-right: 4px;">What-if presets</span>
+      <button class="chip" data-preset="default">Reset</button>
+      <button class="chip" data-preset="40h">40-hr week</button>
+      <button class="chip" data-preset="45h">45-hr week</button>
+      <button class="chip" data-preset="lean">Lean (reduced travel, no tools)</button>
+      <button class="chip" data-preset="premium">Premium contract ($85/hr)</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="org">OGIMAAWABIITONG <span>/</span> Kenora Chiefs Advisory</div>
+    <div><a href="https://www.kenorachiefs.org">www.kenorachiefs.org</a></div>
+  </div>
+</footer>
+
+<script>
+  // --- state ---
+  const state = {
+    hoursPerWeek: 50,
+    contractRate: 70,
+    m2Salary: 130000,
+    benefitsPct: 23.5,
+    m1Travel: 'full',    // 'full' | 'reduced'
+    toolsOn: true,
+  };
+
+  const CURRENT = {
+    salary: 110000,
+    benefits: 25850,
+    travel: 22900,
+    tools: 6240, // currently OOP
+    totalKcaNow: 110000 + 25850 + 22900,     // $158,790 — what KCA actually pays today
+  };
+
+  const TOOLS = 6240;
+  const M1_TRAVEL_FULL = 22900;
+  const M1_TRAVEL_REDUCED = 15000;
+  const M3_TRAVEL = 18000;
+  const M1_SELF_BENEFITS = 10000;
+
+  // --- format helpers ---
+  const fmtK = n => {
+    const abs = Math.abs(n);
+    if (abs >= 1000) return (n / 1000).toFixed(abs >= 100000 ? 0 : 1).replace(/\.0$/, '') + 'k';
+    return n.toFixed(0);
+  };
+  const fmt$ = n => '$' + Math.round(n).toLocaleString('en-CA');
+  const fmt$K = n => '$' + fmtK(n);
+  const fmtDelta = n => (n >= 0 ? '+' : '-') + '$' + fmtK(Math.abs(n));
+
+  function computeModels() {
+    const annualHours = state.hoursPerWeek * 52;
+    const tools = state.toolsOn ? TOOLS : 0;
+
+    // Model 1: contract
+    const contractFees = state.contractRate * annualHours;
+    const m1Travel = state.m1Travel === 'full' ? M1_TRAVEL_FULL : M1_TRAVEL_REDUCED;
+    const m1Kca = contractFees + m1Travel + tools;
+    const m1Net = contractFees - M1_SELF_BENEFITS;
+    const m1Hourly = state.contractRate;
+
+    // Model 2: salary + benefits
+    const m2Benefits = state.m2Salary * (state.benefitsPct / 100);
+    const m2Travel = CURRENT.travel;
+    const m2Kca = state.m2Salary + m2Benefits + m2Travel + tools;
+    const m2Net = state.m2Salary;
+    const m2Hourly = state.m2Salary / annualHours;
+
+    // Model 3: status quo + travel
+    const m3Salary = CURRENT.salary;
+    const m3Benefits = m3Salary * (state.benefitsPct / 100);
+    const m3Travel = M3_TRAVEL;
+    const m3Kca = m3Salary + m3Benefits + m3Travel + tools;
+    const m3Net = m3Salary;
+    const m3Hourly = m3Salary / annualHours;
+
+    // Baseline hourly rate at current comp + current hours
+    const baselineHr = CURRENT.salary / annualHours;
+
+    return {
+      annualHours,
+      tools,
+      baseline: { total: CURRENT.totalKcaNow, hourly: baselineHr },
+      m1: {
+        salary: contractFees, benefits: 0, travel: m1Travel, tools,
+        kca: m1Kca, net: m1Net, hourly: m1Hourly,
+      },
+      m2: {
+        salary: state.m2Salary, benefits: m2Benefits, travel: m2Travel, tools,
+        kca: m2Kca, net: m2Net, hourly: m2Hourly,
+      },
+      m3: {
+        salary: m3Salary, benefits: m3Benefits, travel: m3Travel, tools,
+        kca: m3Kca, net: m3Net, hourly: m3Hourly,
+      },
+    };
+  }
+
+  function renderKPI(r) {
+    // KCA costs + deltas
+    document.getElementById('m1KcaCost').textContent = fmt$K(r.m1.kca);
+    document.getElementById('m2KcaCost').textContent = fmt$K(r.m2.kca);
+    document.getElementById('m3KcaCost').textContent = fmt$K(r.m3.kca);
+
+    setDelta('m1KcaDelta', r.m1.kca - r.baseline.total);
+    setDelta('m2KcaDelta', r.m2.kca - r.baseline.total);
+    setDelta('m3KcaDelta', r.m3.kca - r.baseline.total);
+
+    // Net
+    document.getElementById('m1Net').textContent = fmt$K(r.m1.net);
+    document.getElementById('m2Net').textContent = fmt$K(r.m2.net);
+    document.getElementById('m3Net').textContent = fmt$K(r.m3.net);
+
+    // Hourly
+    document.getElementById('m1Hourly').textContent = '$' + r.m1.hourly.toFixed(0);
+    document.getElementById('m2Hourly').textContent = '$' + r.m2.hourly.toFixed(0);
+    document.getElementById('m3Hourly').textContent = '$' + r.m3.hourly.toFixed(0);
+
+    // Baseline
+    document.getElementById('baselineRate').textContent = '$' + r.baseline.hourly.toFixed(0);
+
+    // Table
+    document.getElementById('tbM1Kca').textContent = fmt$(r.m1.kca);
+    document.getElementById('tbM2Kca').textContent = fmt$(r.m2.kca);
+    document.getElementById('tbM3Kca').textContent = fmt$(r.m3.kca);
+    document.getElementById('tbM1Net').textContent = fmt$(r.m1.net);
+    document.getElementById('tbM2Net').textContent = fmt$(r.m2.net);
+    document.getElementById('tbM3Net').textContent = fmt$(r.m3.net);
+    document.getElementById('tbM1Hr').textContent = '$' + r.m1.hourly.toFixed(2);
+    document.getElementById('tbM2Hr').textContent = '$' + r.m2.hourly.toFixed(2);
+    document.getElementById('tbM3Hr').textContent = '$' + r.m3.hourly.toFixed(2);
+  }
+
+  function setDelta(id, delta) {
+    const el = document.getElementById(id);
+    el.textContent = fmtDelta(delta) + ' vs current';
+    el.classList.remove('up','down','flat');
+    if (Math.abs(delta) < 2500) el.classList.add('flat');
+    else if (delta > 0) el.classList.add('up');
+    else el.classList.add('down');
+  }
+
+  function renderBars(r) {
+    // KCA cost bars
+    const kcaData = [
+      { name: 'Current', val: r.baseline.total, cls: 'current' },
+      { name: 'Model 1', val: r.m1.kca, cls: 'm1' },
+      { name: 'Model 2', val: r.m2.kca, cls: 'm2' },
+      { name: 'Model 3', val: r.m3.kca, cls: 'm3' },
+    ];
+    renderBarSet('kcaBars', kcaData);
+
+    const netData = [
+      { name: 'Current', val: CURRENT.salary, cls: 'current' },
+      { name: 'Model 1', val: r.m1.net, cls: 'm1' },
+      { name: 'Model 2', val: r.m2.net, cls: 'm2' },
+      { name: 'Model 3', val: r.m3.net, cls: 'm3' },
+    ];
+    renderBarSet('netBars', netData);
+  }
+
+  function renderBarSet(id, rows) {
+    const max = Math.max(...rows.map(r => r.val)) * 1.05;
+    const host = document.getElementById(id);
+    host.innerHTML = rows.map(r => `
+      <div class="bar-row">
+        <div class="name">${r.name}</div>
+        <div class="bar-track"><div class="bar-fill ${r.cls}" style="width: ${(r.val / max * 100).toFixed(1)}%"></div></div>
+        <div class="bar-val">${fmt$(r.val)}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderStack(r) {
+    const rows = [
+      { name: 'Current', m: { salary: CURRENT.salary, benefits: CURRENT.benefits, travel: CURRENT.travel, tools: 0 } },
+      { name: 'Model 1', m: r.m1 },
+      { name: 'Model 2', m: r.m2 },
+      { name: 'Model 3', m: r.m3 },
+    ];
+    const host = document.getElementById('stackChart');
+    host.innerHTML = rows.map(row => {
+      const total = row.m.salary + row.m.benefits + row.m.travel + row.m.tools;
+      const pct = v => (v / total * 100).toFixed(2) + '%';
+      return `
+        <div class="stack-row">
+          <div class="stack-label"><span>${row.name}</span><strong>${fmt$(total)}</strong></div>
+          <div class="stack-bar">
+            <div class="stack-seg seg-salary" style="width: ${pct(row.m.salary)}" title="Salary/contract: ${fmt$(row.m.salary)}"></div>
+            <div class="stack-seg seg-benefits" style="width: ${pct(row.m.benefits)}" title="Benefits: ${fmt$(row.m.benefits)}"></div>
+            <div class="stack-seg seg-travel" style="width: ${pct(row.m.travel)}" title="Travel: ${fmt$(row.m.travel)}"></div>
+            <div class="stack-seg seg-tools" style="width: ${pct(row.m.tools)}" title="Tools: ${fmt$(row.m.tools)}"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function render() {
+    const r = computeModels();
+    renderKPI(r);
+    renderBars(r);
+    renderStack(r);
+  }
+
+  // --- input wiring ---
+  function bindInput(id, key, parser = parseFloat) {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      const v = parser(el.value);
+      if (!isNaN(v)) { state[key] = v; render(); }
+    });
+  }
+  bindInput('hours', 'hoursPerWeek');
+  bindInput('contractRate', 'contractRate');
+  bindInput('m2Salary', 'm2Salary');
+  bindInput('benefitsPct', 'benefitsPct');
+
+  document.getElementById('travelToggle').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    document.querySelectorAll('#travelToggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.m1Travel = btn.dataset.travel;
+    render();
+  });
+
+  document.getElementById('toolsToggle').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    document.querySelectorAll('#toolsToggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.toolsOn = btn.dataset.tools === 'on';
+    render();
+  });
+
+  // Presets
+  document.querySelectorAll('.chip[data-preset]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip[data-preset]').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const p = chip.dataset.preset;
+      if (p === 'default') applyPreset({ hoursPerWeek: 50, contractRate: 70, m2Salary: 130000, benefitsPct: 23.5, m1Travel: 'full', toolsOn: true });
+      if (p === '40h') applyPreset({ hoursPerWeek: 40 });
+      if (p === '45h') applyPreset({ hoursPerWeek: 45 });
+      if (p === 'lean') applyPreset({ m1Travel: 'reduced', toolsOn: false });
+      if (p === 'premium') applyPreset({ contractRate: 85 });
+    });
+  });
+
+  function applyPreset(partial) {
+    Object.assign(state, partial);
+    document.getElementById('hours').value = state.hoursPerWeek;
+    document.getElementById('contractRate').value = state.contractRate;
+    document.getElementById('m2Salary').value = state.m2Salary;
+    document.getElementById('benefitsPct').value = state.benefitsPct;
+    document.querySelectorAll('#travelToggle button').forEach(b => b.classList.toggle('active', b.dataset.travel === state.m1Travel));
+    document.querySelectorAll('#toolsToggle button').forEach(b => b.classList.toggle('active', (b.dataset.tools === 'on') === state.toolsOn));
+    render();
+  }
+
+  render();
+</script>
+</body>
+</html>
